@@ -19,6 +19,9 @@ import Jewellery from './src/screens/Jewellery';
 import Bags from './src/screens/Bags';
 import ProductDetail from './src/screens/ProductDetail';
 import CheckOutPage from './src/screens/CheckOutPage';
+import EditProfile from './src/screens/EditProfile';
+import SavedAddresses from './src/screens/SavedAddresses';
+import Wishlist from './src/screens/Wishlist';
 
 // Tabs
 import HomePage from './src/tabs/HomePage';
@@ -44,7 +47,7 @@ const TAB_CONFIG = {
 
 // Bottom tabs
 const MainTabs = () => {
-    const { cartlistItems} = useContext(GlobleInfo);
+    const { cartlistItems } = useContext(GlobleInfo);
     const insets = useSafeAreaInsets();
 
     return (
@@ -116,6 +119,9 @@ const App = () => {
                         <Stack.Screen name="Bags" component={Bags} />
                         <Stack.Screen name="ProductItem" component={ProductDetail} />
                         <Stack.Screen name="CheckOutPage" component={CheckOutPage} />
+                        <Stack.Screen name="EditProfile" component={EditProfile} />
+                        <Stack.Screen name="SavedAddresses" component={SavedAddresses} />
+                        <Stack.Screen name="Wishlist" component={Wishlist} />
                     </Stack.Navigator>
 
                 </NavigationContainer>

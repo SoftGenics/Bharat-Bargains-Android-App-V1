@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useContext } from 'react';
+import React, { useContext } from 'react';
 import {
   Text,
   View,
@@ -9,11 +9,13 @@ import {
   Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useFocusEffect } from '@react-navigation/native';
 import {GlobleInfo} from '../context/GlobleInfoContext';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+
+// import { getToken } from '../utils/storage';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Header from '../components/Header';
+
+
 
 const GOLD = '#F5B800';
 const GOLD_DARK = '#C99700';
@@ -21,17 +23,13 @@ const BG = '#f1f3f6';
 const TEXT = '#212121';
 const GREY = '#878787';
 
-// AsyncStorage keys: apne login code ke hisaab se badlo
-const TOKEN_KEY = 'token';
-const NAME_KEY = 'userName';
-
 /*
  * screen: App.js me registered screen ka naam. null ho to "Coming soon" alert aayega.
  * Jab koi screen bana lo, bas yahan uska naam likh do.
  */
 const QUICK_ACTIONS = [
   { icon: 'cube-outline', label: 'Orders', screen: null },
-  { icon: 'heart-outline', label: 'Wishlist', screen: null },
+  { icon: 'heart-outline', label: 'Wishlist', screen: 'Wishlist' },
   { icon: 'ticket-outline', label: 'Coupons', screen: null },
   { icon: 'headset-outline', label: 'Help Centre', screen: null },
 ];
@@ -40,8 +38,8 @@ const SECTIONS = [
   {
     title: 'Account Settings',
     items: [
-      { icon: 'person-outline', label: 'Edit Profile', screen: null },
-      { icon: 'card-outline', label: 'Saved Cards & Wallet', screen: null },
+      { icon: 'person-outline', label: 'Edit Profile', screen: 'EditProfile' },
+      { icon: 'card-outline', label: 'Saved Cards & Wallet', screen: null},
       { icon: 'location-outline', label: 'Saved Addresses', screen: null },
       { icon: 'language-outline', label: 'Select Language', screen: null },
       { icon: 'notifications-outline', label: 'Notification Settings', screen: null },
@@ -68,25 +66,7 @@ const SECTIONS = [
 ];
 
 const AccountScreen = ({ navigation }) => {
-  // const {userData} = React.useContext(userData);
-  const [loggedIn, setLoggedIn] = useState(false);
-  const [name, setName] = useState('');
-
-  // Screen par aate hi login status dobara check hota hai
-  useFocusEffect(
-    useCallback(() => {
-      (async () => {
-        try {
-          const token = await AsyncStorage.getItem(TOKEN_KEY);
-          const savedName = await AsyncStorage.getItem(NAME_KEY);
-          setLoggedIn(!!token);
-          setName(savedName || '');
-        } catch (e) {
-          setLoggedIn(false);
-        }
-      })();
-    }, [])
-  );
+  const {userData, isLoggedIn, logout } = useContext(GlobleInfo);
 
   const go = (screen) => {
     if (screen) navigation.navigate(screen);
@@ -96,7 +76,7 @@ const AccountScreen = ({ navigation }) => {
   const goLogin = () => navigation.navigate('LoginPage');
   const goSignup = () => navigation.navigate('LoginPage', { mode: 'signup' });
 
-  const logout = () => {
+  const handleLogout = () => {
     Alert.alert('Logout', 'Kya aap logout karna chahte ho?', [
       { text: 'Cancel', style: 'cancel' },
       {
@@ -104,11 +84,11 @@ const AccountScreen = ({ navigation }) => {
         style: 'destructive',
         onPress: async () => {
           try {
-            await AsyncStorage.multiRemove([TOKEN_KEY, NAME_KEY]);
-          } catch (e) {}
-          setLoggedIn(false);
-          setName('');
-          navigation.reset({ index: 0, routes: [{ name: 'LoginPage' }] });
+             await logout();
+             navigation.replace('LoginPage');
+            } catch (error) {
+             console.error('Logout failed:', error);
+           }
         },
       },
     ]);
@@ -129,11 +109,11 @@ const AccountScreen = ({ navigation }) => {
             <Ionicons name="person" size={30} color="#fff" />
           </View>
 
-          {loggedIn ? (
+          {isLoggedIn ? (
             <View style={{ flex: 1 }}>
               <Text style={styles.hello}>Hello,</Text>
               <Text style={styles.userName} numberOfLines={1}>
-                {name || 'Shopper'}
+                {userData?.name || 'Shopper'}
               </Text>
             </View>
           ) : (
@@ -186,8 +166,8 @@ const AccountScreen = ({ navigation }) => {
         ))}
 
         {/* ---------- logout ---------- */}
-        {loggedIn && (
-          <TouchableOpacity style={styles.logoutBtn} onPress={logout} activeOpacity={0.8}>
+        {isLoggedIn && (
+          <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout} activeOpacity={0.8}>
             <Ionicons name="log-out-outline" size={20} color="#d32f2f" />
             <Text style={styles.logoutText}>Log Out</Text>
           </TouchableOpacity>
