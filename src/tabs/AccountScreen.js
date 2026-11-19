@@ -24,8 +24,7 @@ const TEXT = '#212121';
 const GREY = '#878787';
 
 /*
- * screen: App.js me registered screen ka naam. null ho to "Coming soon" alert aayega.
- * Jab koi screen bana lo, bas yahan uska naam likh do.
+ * when will screen come: in App.js add registered screen name. if null "Coming soon" alert aayega.
  */
 const QUICK_ACTIONS = [
   { icon: 'cube-outline', label: 'Orders', screen: null },
